@@ -120,17 +120,13 @@
           <button class="btn btn-camera" (click)="camera1()" >Camera</button>
         </ion-col>
         
-        <!-- <ion-col *ngIf="status=='unpaid'" size="6">
-          <ion-button (click)="captureImage()">
-            Click Picture
-          </ion-button>
-          <img [src]="clickedImage" />
-        </ion-col> -->
-        
         <ion-col *ngIf="status=='unpaid'" size="6">
-          <p *ngIf="isUploaded" class="isuploaded">Choose File</p>
+          <!-- <p *ngIf="isUploaded" class="isuploaded">Choose File</p> -->
           <label for="upload-photo" class="label upload">{{subtitle_choose}}</label>
-          <input type="file" ng2FileSelect [uploader]="uploader" id="upload-photo"/>
+          <input #file type="file" ng2FileSelect [uploader]="uploader" id="upload-photo" accept='image/*' (change)="preview(file.files)"/>
+        </ion-col>
+        <ion-col>
+          <img [src]="imgURL" height="200" *ngIf="imgURL" style="width: 50%; margin-left: 100px;">
         </ion-col>
         <ion-col *ngIf="status=='unpaid'" size="12">
           <button *ngIf="konfirmasi==0"  class="btn" (click)="doKonfirmasi()" >{{subtitle_konfirmasi}}</button>

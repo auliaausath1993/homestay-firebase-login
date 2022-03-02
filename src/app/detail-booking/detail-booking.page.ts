@@ -23,6 +23,28 @@ declare var cordova: any;
 })
 export class DetailBookingPage implements OnInit {
 
+  public imagePath;
+  imgURL: any;
+  public message: string;
+
+  preview(files) {
+    if (files.length === 0)
+      return;
+ 
+    var mimeType = files[0].type;
+    if (mimeType.match(/image\/*/) == null) {
+      this.message = "Only images are supported.";
+      return;
+    }
+ 
+    var reader = new FileReader();
+    this.imagePath = files;
+    reader.readAsDataURL(files[0]); 
+    reader.onload = (_event) => { 
+      this.imgURL = reader.result; 
+    }
+  }
+
   clickedImage: string;
   
   options: CameraOptions = {
@@ -37,6 +59,8 @@ export class DetailBookingPage implements OnInit {
   bahasa;bahasa_name;
 
   lat: number;
+  picture: any;
+  base64Image: any;
   lng: number;
   address: string;
   collection = [1,1,1,1,1,1,1,1];
@@ -361,6 +385,36 @@ export class DetailBookingPage implements OnInit {
     document.body.removeChild(selBox);
     alert("copied");
   }
+
+  AccessCamera(){
+
+    this.camera.getPicture({
+   
+    targetWidth:512,
+   
+    targetHeight:512,
+   
+    correctOrientation:true,
+   
+    sourceType: this.camera.PictureSourceType.CAMERA,
+   
+    destinationType: this.camera.DestinationType.DATA_URL
+   
+      }).then((imageData) => {
+   
+        this.base64Image = 'data:image/jpeg;base64,'+imageData;
+   
+        this.picture = imageData;
+   
+            }, (err) => {
+   
+        console.log(err);
+   
+      });
+   
+   }
+
+   
 
   camera1(){
     this.takePicture(this.camera.PictureSourceType.CAMERA,"1");

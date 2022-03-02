@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { Http,Headers,RequestOptions } from '@angular/http';
 import { StorageMap } from '@ngx-pwa/local-storage';
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
-
+import { NavController } from '@ionic/angular';
 import { AuthService } from "angularx-social-login";
 import { SocialUser } from "angularx-social-login";
 import { GoogleLoginProvider } from "angularx-social-login";
@@ -66,6 +66,7 @@ export class LoginPage implements OnInit {
     private firebaseX: FirebaseX,
     private fireAuth: AngularFireAuth,
     private platform: Platform,
+    private navCtrl: NavController
   ) {
     this.bahasa       = this.serv.bahasa;
     this.bahasa_name  = this.serv.bahasa_name;
@@ -333,7 +334,10 @@ export class LoginPage implements OnInit {
           offline: true
         };
       } else {
-        params = {};
+        params = {
+          webClientId: '919872359812-7mpjn44vmcuiu773rvjlki8tbgd0snmg.apps.googleusercontent.com', //  webclientID 'string'
+          offline: true
+        };
       }
       this.googlePlus.login(params)
       .then((response) => {
@@ -421,6 +425,11 @@ export class LoginPage implements OnInit {
         console.log('r ' + JSON.stringify(error))
         //console.log(error);
       });
+  }
+
+  back(){
+    console.log("button back");
+    this.navCtrl.back();
   }
 
 }
