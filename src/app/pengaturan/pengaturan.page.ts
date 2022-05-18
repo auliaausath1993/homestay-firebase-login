@@ -136,7 +136,7 @@ export class PengaturanPage implements OnInit {
       sourceType: sourceType,
       saveToPhotoAlbum: false,
       correctOrientation: true
-    };
+    }; 
 
     // Get the data of an image
     this.camera.getPicture(options).then((imagePath) => {
@@ -346,7 +346,7 @@ export class PengaturanPage implements OnInit {
     .subscribe(data => {
         this.loadingController.dismiss();
         var response = data.json();
-
+        console.log(response)
         if(response.status=="Success"){
           for(let x = 0;x<response.data.length;x++){
             let item      = response.data[x];

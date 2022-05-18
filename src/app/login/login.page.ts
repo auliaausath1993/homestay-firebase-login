@@ -390,7 +390,7 @@ export class LoginPage implements OnInit {
     let requestOptions = new RequestOptions({ headers: headers });
     let body = new FormData;
     
-    body.append('nama', val.name);
+    body.append('nama', val.name == undefined ? val.displayName:val.name);
     body.append('googleId', val.googleId);
     body.append('idToken', val.idToken);
     body.append('authToken', val.authToken);

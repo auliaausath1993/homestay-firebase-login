@@ -433,9 +433,11 @@ export class DetailBookingPage implements OnInit {
     };
 
     // Get the data of an image
-    this.camera.getPicture(options).then((imagePath) => {
+    this.camera.getPicture(options).then(async (imagePath) => {
       // Special handling for Android library
       if (this.platform.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
+        console.log('Android')
+        console.log(imagePath)
         this.filePath.resolveNativePath(imagePath)
           .then(filePath => {
             let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
@@ -443,14 +445,80 @@ export class DetailBookingPage implements OnInit {
             this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), enumx);
           });
       } else {
-        var currentName = imagePath.substr(imagePath.lastIndexOf('/') + 1);
-        var correctPath = imagePath.substr(0, imagePath.lastIndexOf('/') + 1);
-        this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), enumx);
+        // const fileNameIndex: number = imagePath.lastIndexOf('/') + 1;
+        // // file:///storage/emulated/0/Android/data/com.myDomain.myApp/cache/
+        // const cacheDirectoryFromFileUri = imagePath.substring(0, fileNameIndex );
+      
+        // //  FB_IMG_1532921240445.jpg?1532982282636 
+        // const fileName = imagePath.substring(fileNameIndex);
+        let blob = await this.b64toBlob(imagePath, 'image/jpeg');
+        console.log('web')
+        console.log(blob)
+        // console.log(cacheDirectoryFromFileUri)
+        // console.log(fileName)
+        
+        // let image = new Image();
+        // image.src = imagePath;
+        // console.log(image)
+
+        // // let image = await this.saveBase64(blob, this.createFileName());
+        // // console.log(image)
+        var reader = new FileReader();
+        reader.readAsDataURL(blob); 
+        reader.onload = (_event) => { 
+          this.imgURL = reader.result; 
+        }
+        this.filePath.resolveNativePath(imagePath)
+          .then(filePath => {
+            console.log('filePath',filePath)
+            let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
+            let currentName = imagePath.substring(imagePath.lastIndexOf('/') + 1, imagePath.lastIndexOf('?'));
+            this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), enumx);
+          });
       }
     }, (err) => {
       this.presentToast('Error while selecting image.');
     });
   }
+
+
+  saveBase64(blob:any, name:string):Promise<string>{
+    return new Promise((resolve, reject)=>{
+      this.file.writeFile(cordova.file.dataDirectory, name, blob)
+      .then(()=>{
+        resolve(cordova.file.dataDirectory+name);
+      })
+      .catch((err)=>{
+        console.log('error writing blob')
+        reject(err)
+      })
+    })
+  }
+  
+  //convert base64 to blob
+  b64toBlob(b64Data, contentType) {
+    contentType = contentType || '';
+    var sliceSize = 512;
+    var byteCharacters = atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      var byteNumbers = new Array(slice.length);
+      for (var i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      var byteArray = new Uint8Array(byteNumbers);
+
+      byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+  }
+
   // Create a new name for the image
   private createFileName() {
     var d = new Date(),
@@ -461,13 +529,17 @@ export class DetailBookingPage implements OnInit {
 
   // Copy the image to a local folder
   private copyFileToLocalDir(namePath, currentName, newFileName, enumx) {
+    console.log('masuk copy',enumx)
     this.file.copyFile(namePath, currentName, cordova.file.dataDirectory, newFileName).then(success => {
       this.lastImage = newFileName;
-      this.uploadImage(enumx);
+      console.log('success ',success)
+      this.uploadImage(enumx, 'camera');
     }, error => {
+      console.log('error ',error)
       this.presentToast('Error while storing file.');
     });
   }
+
   public pathForImage(img) {
     if (img === null) {
       return '';
@@ -487,7 +559,7 @@ export class DetailBookingPage implements OnInit {
     });
   } */
   
-  public uploadImage(enumx) {
+  public uploadImage(enumx, from) {
     // Destination URLhttp://swm.jobspro.id/api/attendance/upload_attendance
     // Destination URL
 
@@ -505,7 +577,11 @@ export class DetailBookingPage implements OnInit {
     console.log(url);
 
     // File for Upload
-    var targetPath = this.pathForImage(this.lastImage);
+    if(from != 'camera') {
+      var targetPath = this.pathForImage(this.lastImage);
+    } else {
+      var targetPath = this.imgURL;
+    }
 
     // File name only
     var filename = this.lastImage;
@@ -521,8 +597,6 @@ export class DetailBookingPage implements OnInit {
     };
 
     const fileTransfer: FileTransferObject = this.transfer.create();
-
-    
 
     // Use the FileTransfer to upload the image
     //"{"status":true,"id_attendance":24,"nama_file":"201905191649221558259359099.jpg","message":"Upload and move success and Your data has been successfully stored into the database"}"
