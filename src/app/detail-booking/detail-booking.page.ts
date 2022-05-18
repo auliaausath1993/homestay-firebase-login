@@ -533,7 +533,7 @@ export class DetailBookingPage implements OnInit {
     this.file.copyFile(namePath, currentName, cordova.file.dataDirectory, newFileName).then(success => {
       this.lastImage = newFileName;
       console.log('success ',success)
-      this.uploadImage(enumx, 'camera');
+      this.uploadImage(enumx);
     }, error => {
       console.log('error ',error)
       this.presentToast('Error while storing file.');
@@ -559,7 +559,7 @@ export class DetailBookingPage implements OnInit {
     });
   } */
   
-  public uploadImage(enumx, from) {
+  public uploadImage(enumx) {
     // Destination URLhttp://swm.jobspro.id/api/attendance/upload_attendance
     // Destination URL
 
@@ -577,11 +577,7 @@ export class DetailBookingPage implements OnInit {
     console.log(url);
 
     // File for Upload
-    if(from != 'camera') {
-      var targetPath = this.pathForImage(this.lastImage);
-    } else {
-      var targetPath = this.imgURL;
-    }
+    var targetPath = this.pathForImage(this.lastImage);
 
     // File name only
     var filename = this.lastImage;
